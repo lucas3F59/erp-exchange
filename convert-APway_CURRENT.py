@@ -7,6 +7,7 @@ DEBUG = False
 
 APWAY_SOURCE_FILE = './P2Way_edit.xml'
 FAVORITES_ROOT = 'L:/2015_newnet/IE11/APplus/Favorites/APplus'
+FAVORITES_ROOT = 'U:/__newnet/IE11/APplus/Favorites_2018/APplus'
 APPLUS_ENVIRONMENT = 'http://srvapprod/applusprod/'
 APPLUS_ICON = '%windir%/_PE/APplus.ico'
 
@@ -21,9 +22,6 @@ log = open( logfile, mode='tw', encoding='cp1252')
 import os
 import xml.etree.ElementTree as ElementTree
 
-
-import win32com.client
-WIN32COM_SHELL = win32com.client.Dispatch( 'WScript.Shell')
 
 
 def main():
@@ -50,7 +48,7 @@ def iterate_tree( shit, current_path, iter_dir, iter_file):
             sub_iter_dir, sub_iter_file = iterate_tree( bull, new_path, sub_iter_dir, sub_iter_file)
     elif clean_xsd(shit.tag) in LINK_TAGS:
         iter_file += 1
-        make_shortcut( current_path + '/', str(iter_file*10).rjust( 3, '0') + ' - ' + shit.attrib['title'].strip().replace( '/', '-').replace( ': ', ' - ') + '.lnk', sanitize_destination( shit.attrib['url']))
+        make_shortcut( current_path + '/', str(iter_file*10).rjust( 3, '0') + ' - ' + shit.attrib['title'].strip().replace( '/', '-').replace( ': ', ' - ') + '.url', sanitize_destination( shit.attrib['url']))
     else:
         print( 'ERROR:\nUNKNOWN tag = ' + clean_xsd(shit.tag) + '\n; attributes = ' + str(shit.attrib))
         exit()
@@ -83,16 +81,18 @@ def make_shortcut( path, filename, destination):
     print( 'make_shortcut(  "' + shortcut_pathfile + '", "' + destination + '")')
     if not DEBUG:
         try:
-            createshortcut = WIN32COM_SHELL.CreateShortcut( shortcut_pathfile)
-            createshortcut.TargetPath = destination
-            createshortcut.IconLocation = APPLUS_ICON
-            createshortcut.Save()
+            fucker = open( shortcut_pathfile, mode='tw')
+            fucker.write( '[InternetShortcut]' + '\n')
+            fucker.write( 'URL=' + destination + '\n')
+            fucker.write( 'IconFile=' + APPLUS_ICON + '\n')
+            fucker.write( 'IconIndex=0' + '\n')
+            fucker.close()
         except Exception as e:
             print( '==============================================================================')
             print( 'ERROR Exception:')
-            print( '    WIN32COM_SHELL.CreateShortcut()')
+            print( '    open( shortcut_pathfile, mode=''tw'')''')
             print( '        shortcut_pathfile = ' + shortcut_pathfile)
-            print( '        TargetPath = ' + destination)
+            print( '        URL = ' + destination)
             print( '------------------------------------------------------------------------------')
             print( e)
             print( '==============================================================================')
